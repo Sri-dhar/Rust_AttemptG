@@ -1,0 +1,8 @@
+[package]
+name = "prac3bevyImage"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.10.0"
+bevy_egui = "0.27.0"
