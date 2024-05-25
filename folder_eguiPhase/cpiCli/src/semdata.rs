@@ -200,5 +200,27 @@ impl Semester{
         }
         None
     }
+
+    pub fn get_grades_from_user(&self) -> HashMap<String, f32> {
+        let mut grades = HashMap::new();
+        for (course_code, (_, course_name)) in self.sem_info.iter() {
+            println!("Enter grade for {} ({}): ", course_code, course_name);
+            let mut grade = String::new();
+            std::io::stdin()
+                .read_line(&mut grade)
+                .expect("Failed to read input");
+            let grade: f32 = match grade.trim().parse() {
+                Ok(num) => num,
+                Err(_) => {
+                    println!("Invalid input. Please enter a number.");
+                    return HashMap::new();
+                }
+            };
+            let course_key = format!("{} ({})", course_code, course_name);
+            grades.insert(course_key, grade);
+        }
+        grades
+    }
+
 }
 
