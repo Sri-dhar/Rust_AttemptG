@@ -1,4 +1,5 @@
 mod semdata;
+use semdata::Semester;
 
 fn main() {
     // Get all semesters from semdata.rs
@@ -29,7 +30,7 @@ fn main() {
 
     // Handle semester existence
 
-    //code below is to print information about a given semester
+    // Code below is to print information about a given semester
     /*
     match semester_info {
         Some(semester) => {
@@ -55,8 +56,16 @@ fn main() {
         }
     };
 
-    println!("\nGrades: ");
-    for (course_code, grade) in grades.iter() {
-        println!("Course: {:<10} Grade: {}", course_code, grade);
-    }
+    // Code snippet below is to print grades
+
+    // println!("\nGrades: ");
+    // for (course_code, grade) in grades.iter() {
+    //     println!("Course: {:<10} Grade: {}", course_code, grade);
+    // }
+
+    // Calculate SGPA OR SPI
+    let mut spi = semdata::Semester::calculate_spi(semester_info.unwrap(), &grades);
+    println!("SPI: {:.2}", spi);
+
+
 }

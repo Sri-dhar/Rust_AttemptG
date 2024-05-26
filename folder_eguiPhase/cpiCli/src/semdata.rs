@@ -204,22 +204,37 @@ impl Semester{
     pub fn get_grades_from_user(&self) -> HashMap<String, f32> {
         let mut grades = HashMap::new();
         for (course_code, (_, course_name)) in self.sem_info.iter() {
-            println!("Enter grade for {} ({}): ", course_code, course_name);
-            let mut grade = String::new();
-            std::io::stdin()
-                .read_line(&mut grade)
-                .expect("Failed to read input");
-            let grade: f32 = match grade.trim().parse() {
-                Ok(num) => num,
-                Err(_) => {
+            loop {
+                println!("Enter grade for {} ({}): ", course_code, course_name);
+                let mut grade = String::new();
+                std::io::stdin()
+                    .read_line(&mut grade)
+                    .expect("Failed to read input");
+                if let Ok(num) = grade.trim().parse::<f32>() {
+                    if num < 0.0 || num > 10.0 {
+                        println!("Invalid input. Please enter a number between 0 and 10.");
+                        continue; 
+                    } else {
+                        let course_key = format!("{} ({})", course_code, course_name);
+                        grades.insert(course_key, num);
+                        break;
+                    }
+                } else {
                     println!("Invalid input. Please enter a number.");
-                    return HashMap::new();
+                    continue; 
                 }
-            };
-            let course_key = format!("{} ({})", course_code, course_name);
-            grades.insert(course_key, grade);
+            }
         }
         grades
+    }
+
+
+    pub fn calculate_spi(semester: &Semester, grades: &HashMap<String, f32>) -> f32 {
+        let mut total_credit = 0.0;
+        let mut total_grade_points = 0.0;
+
+        
+
     }
 
 }
