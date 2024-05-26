@@ -4,6 +4,7 @@ pub struct Semester {
     pub course_name: Vec<String>,
     pub course_credit: Vec<f32>,
     pub total_credit: f32,
+    pub total_credit_till_sem: f32,
 }
 
 pub fn get_semesters(sem_no:f32) -> Option<Semester> {
@@ -32,6 +33,7 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![8.0, 6.0, 3.0, 8.0, 3.0, 8.0, 4.0, 6.0],
             total_credit: 46.0,
+            total_credit_till_sem: 46.0,
         },
         Semester {
             sem_no: 2.0,
@@ -55,6 +57,7 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![8.0, 8.0, 3.0, 8.0, 8.0, 3.0, 6.0],
             total_credit: 44.0,
+            total_credit_till_sem: 90.0,
         },
         Semester {
             sem_no: 3.0,
@@ -78,6 +81,7 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 6.0, 3.0, 7.0, 6.0, 6.0],
             total_credit: 40.0,
+            total_credit_till_sem: 130.0,
         },
         Semester {
             sem_no: 4.0,
@@ -105,6 +109,7 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 3.0, 6.0, 3.0, 6.0, 4.0, 6.0, 6.0],
             total_credit: 46.0,
+            total_credit_till_sem: 176.0,
         },
         Semester {
             sem_no: 5.0,
@@ -130,6 +135,7 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 4.0, 6.0, 3.0, 7.0, 6.0, 6.0],
             total_credit: 44.0,
+            total_credit_till_sem: 220.0,
         },
         Semester {
             sem_no: 6.0,
@@ -155,6 +161,7 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 3.0, 6.0, 3.0, 6.0, 6.0, 6.0, 6.0],
             total_credit: 42.0,
+            total_credit_till_sem: 262.0,
         },
         Semester {
             sem_no: 7.1,
@@ -174,6 +181,7 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 6.0, 6.0, 6.0],
             total_credit: 30.0,
+            total_credit_till_sem: 292.0,
         },
         Semester {
             sem_no: 7.2,
@@ -193,6 +201,8 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 6.0, 6.0, 6.0],
             total_credit: 30.0,
+            total_credit_till_sem: 292.0,
+
         },
         Semester {
             sem_no: 8.1,
@@ -212,6 +222,8 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 6.0, 6.0, 6.0],
             total_credit: 30.0,
+            total_credit_till_sem: 322.0,
+
         },
         Semester {
             sem_no: 8.2,
@@ -227,6 +239,8 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 18.0],
             total_credit: 30.0,
+            total_credit_till_sem: 322.0,
+
         },
         Semester {
             sem_no: 8.3,
@@ -242,6 +256,8 @@ pub fn get_semesters(sem_no:f32) -> Option<Semester> {
             ],
             course_credit: vec![6.0, 6.0, 18.0],
             total_credit: 30.0,
+            total_credit_till_sem: 322.0,
+
         },
     ];
 
