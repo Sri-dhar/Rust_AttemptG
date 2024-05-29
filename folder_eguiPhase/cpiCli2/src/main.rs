@@ -6,7 +6,7 @@ fn main() {
     println!("=======================================\n");
     println!("Instructions: \n");
     println!("Enter n for nth semester");
-    println!("Enter n.x for nth semester xth option");
+    println!("Enter n.x for nth semester's xth option");
     println!("=======================================\n");
     println!("What do you want to Calculate? (SPI/CPI): ");
     let mut input = String::new();
