@@ -36,6 +36,10 @@ struct MyApp {
     show_scale_window: bool,
     scale_input: String,
     option_cpi_spi: i32,
+    sem_no: i32,
+    sem_no_f32 : f32,
+    sem_no_str : String,
+    sem_option : i32,
 }
 
 // impl MyApp {
@@ -55,6 +59,10 @@ impl Default for MyApp {
             show_scale_window: false,
             scale_input: "1.2".to_string(),
             option_cpi_spi: -1,
+            sem_no: 0,
+            sem_no_f32: 0.0,
+            sem_no_str: "0".to_string(),
+            sem_option: 0,
         }
     }
 }
@@ -65,7 +73,6 @@ impl eframe::App for MyApp {
         let scale = functions::read_data();
         *SCALE.lock().unwrap() = scale;
         ctx.set_pixels_per_point(scale);
-        ctx.request_repaint();
 
         TopBottomPanel::top("Top Panel").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
@@ -111,19 +118,89 @@ impl eframe::App for MyApp {
                 });
             
             if self.option_cpi_spi == 0 {
-                ui.label("Enter the value of CPI of sem x and want to calculate SPI of sem x+1");
-                ui.label("Enter the value of CPI of sem x : ");
-                ui.label("Enter the value of x (Semester) : ");
+                ui.horizontal(
+                    |ui| {
+                        ui.label("Select the semester :");
+                        ui.add(egui::Slider::new(&mut self.sem_no, 1..=8).text("Semester"));                         
+                    }
+                );
+                ui.horizontal(
+                    |ui| {
+                        if self.sem_no == 7
+                        {
+                            ui.label("Select an option");
+                            egui::ComboBox::from_label("")
+                            .selected_text(if self.sem_option == 1 { "Option 1" } else { "Option 2" })
+                            .show_ui(ui, |ui| {
+                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                            });
+                        }
+                        else if self.sem_no == 8
+                        {
+                            //create the same as above for three options
+                            ui.label("Select an option");
+                            egui::ComboBox::from_label("")
+                            .selected_text(if self.sem_option == 1 { "Option 1" } else if self.sem_option == 2 { "Option 2" } else {"Option 3"})
+                            .show_ui(ui, |ui| {
+                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                                ui.selectable_value(&mut self.sem_option, 3, "Option 3");
+                            });
+                        }
+                    }
+                ); 
+                self.sem_no_f32 = self.sem_no as f32 ;
+                if self.sem_no == 7 || self.sem_no == 8
+                {
+                    self.sem_no_f32 = self.sem_no_f32 + 0.1 * self.sem_option as f32;
+                }
+                ui.label(format!("Semester : {}", self.sem_no_f32).to_string());
+
             }
             else if self.option_cpi_spi == 1 {
-                ui.label("Enter the value of SPI of sem x and CPI till sem x-1 and want to calculate CPI of sem x");
-                ui.label("Enter the value of SPI of sem x : ");
-                ui.label("Enter the value of CPI till sem x-1 : ");
+                ui.horizontal(
+                    |ui| {
+                        ui.label("Select the semester :");
+                        ui.add(egui::Slider::new(&mut self.sem_no, 1..=8).text("Semester"));                         
+                    }
+                );
+                ui.horizontal(
+                    |ui| {
+                        if self.sem_no == 7
+                        {
+                            ui.label("Select an option");
+                            egui::ComboBox::from_label("")
+                            .selected_text(if self.sem_option == 1 { "Option 1" } else { "Option 2" })
+                            .show_ui(ui, |ui| {
+                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                            });
+                        }
+                        else if self.sem_no == 8
+                        {
+                            //create the same as above for three options
+                            ui.label("Select an option");
+                            egui::ComboBox::from_label("")
+                            .selected_text(if self.sem_option == 1 { "Option 1" } else if self.sem_option == 2 { "Option 2" } else {"Option 3"})
+                            .show_ui(ui, |ui| {
+                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                                ui.selectable_value(&mut self.sem_option, 3, "Option 3");
+                            });
+                        }
+                    }
+                ); 
+                self.sem_no_f32 = self.sem_no as f32 ;
+                if self.sem_no == 7 || self.sem_no == 8
+                {
+                    self.sem_no_f32 = self.sem_no_f32 + 0.1 * self.sem_option as f32;
+                }
+                ui.label(format!("Semester : {}", self.sem_no_f32).to_string());
             }
             else{
                 ui.label("Select an option");
             }
-
 
 
         });
