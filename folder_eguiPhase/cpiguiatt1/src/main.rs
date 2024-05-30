@@ -110,14 +110,18 @@ impl eframe::App for MyApp {
             ui.heading("CPI/SPI Calculator");
             ui.separator();
 
-            egui::ComboBox::from_label("")
-                .selected_text(if self.option_cpi_spi == 0 { "Calculate SPI" } else { "Calculate CPI" })
+            egui::ComboBox::from_label("Select Calculation")
+                .selected_text(match self.option_cpi_spi {
+                    0 => "Calculate SPI",
+                    1 => "Calculate CPI",
+                    _ => "Select",
+                })
                 .show_ui(ui, |ui| {
                     ui.selectable_value(&mut self.option_cpi_spi, 0, "Calculate SPI");
                     ui.selectable_value(&mut self.option_cpi_spi, 1, "Calculate CPI");
                 });
             
-            if self.option_cpi_spi == 0 {
+            if self.option_cpi_spi == 0 || self.option_cpi_spi == 1{
                 ui.horizontal(
                     |ui| {
                         ui.label("Select the semester :");
@@ -126,82 +130,47 @@ impl eframe::App for MyApp {
                 );
                 ui.horizontal(
                     |ui| {
-                        if self.sem_no == 7
-                        {
+                        if self.sem_no == 7 {
                             ui.label("Select an option");
                             egui::ComboBox::from_label("")
-                            .selected_text(if self.sem_option == 1 { "Option 1" } else { "Option 2" })
-                            .show_ui(ui, |ui| {
-                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
-                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
-                            });
+                                .selected_text(match self.sem_option {
+                                    1 => "Option 1",
+                                    2 => "Option 2",
+                                    _ => "Select",
+                                })
+                                .show_ui(ui, |ui| {
+                                    ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                    ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                                });
                         }
-                        else if self.sem_no == 8
-                        {
-                            //create the same as above for three options
+                        else if self.sem_no == 8 {
                             ui.label("Select an option");
                             egui::ComboBox::from_label("")
-                            .selected_text(if self.sem_option == 1 { "Option 1" } else if self.sem_option == 2 { "Option 2" } else {"Option 3"})
-                            .show_ui(ui, |ui| {
-                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
-                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
-                                ui.selectable_value(&mut self.sem_option, 3, "Option 3");
-                            });
-                        }
-                    }
-                ); 
-                self.sem_no_f32 = self.sem_no as f32 ;
-                if self.sem_no == 7 || self.sem_no == 8
-                {
-                    self.sem_no_f32 = self.sem_no_f32 + 0.1 * self.sem_option as f32;
-                }
-                ui.label(format!("Semester : {}", self.sem_no_f32).to_string());
-
-            }
-            else if self.option_cpi_spi == 1 {
-                ui.horizontal(
-                    |ui| {
-                        ui.label("Select the semester :");
-                        ui.add(egui::Slider::new(&mut self.sem_no, 1..=8).text("Semester"));                         
-                    }
-                );
-                ui.horizontal(
-                    |ui| {
-                        if self.sem_no == 7
-                        {
-                            ui.label("Select an option");
-                            egui::ComboBox::from_label("")
-                            .selected_text(if self.sem_option == 1 { "Option 1" } else { "Option 2" })
-                            .show_ui(ui, |ui| {
-                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
-                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
-                            });
-                        }
-                        else if self.sem_no == 8
-                        {
-                            //create the same as above for three options
-                            ui.label("Select an option");
-                            egui::ComboBox::from_label("")
-                            .selected_text(if self.sem_option == 1 { "Option 1" } else if self.sem_option == 2 { "Option 2" } else {"Option 3"})
-                            .show_ui(ui, |ui| {
-                                ui.selectable_value(&mut self.sem_option, 1, "Option 1");
-                                ui.selectable_value(&mut self.sem_option, 2, "Option 2");
-                                ui.selectable_value(&mut self.sem_option, 3, "Option 3");
-                            });
+                                .selected_text(match self.sem_option {
+                                    1 => "Option 1",
+                                    2 => "Option 2",
+                                    3 => "Option 3",
+                                    _ => "Select",
+                                })
+                                .show_ui(ui, |ui| {
+                                    ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                    ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                                    ui.selectable_value(&mut self.sem_option, 3, "Option 3");
+                                });
                         }
                     }
                 ); 
-                self.sem_no_f32 = self.sem_no as f32 ;
-                if self.sem_no == 7 || self.sem_no == 8
-                {
-                    self.sem_no_f32 = self.sem_no_f32 + 0.1 * self.sem_option as f32;
-                }
-                ui.label(format!("Semester : {}", self.sem_no_f32).to_string());
+                
+                ui.horizontal(|ui| {
+                    self.sem_no_f32 = self.sem_no as f32 ;
+                    ui.label(format!("Semester : {}", self.sem_no).to_string());
+                    if self.sem_no == 7 || self.sem_no == 8
+                    {
+                        self.sem_no_f32 = self.sem_no_f32 + 0.1 * self.sem_option as f32;
+                        ui.label(format!("Option {}", self.sem_option).to_string());
+                    }
+                });
             }
-            else{
-                ui.label("Select an option");
-            }
-
 
         });
 
