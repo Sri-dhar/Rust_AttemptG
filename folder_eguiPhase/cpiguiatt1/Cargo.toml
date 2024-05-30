@@ -1,0 +1,10 @@
+[package]
+name = "cpiguiatt1"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+egui = "0.27.2"
+eframe = "0.27.2"
+egui_extras = "0.27.2"
+lazy_static = "1.4.0"

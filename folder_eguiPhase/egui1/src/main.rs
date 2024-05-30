@@ -1,9 +1,7 @@
 use eframe::egui;
 use egui::TopBottomPanel;
 use egui_extras;
-#[warn(unused_imports)]
 use egui::{
-    ViewportBuilder,
     ViewportCommand,
     Button,
 };
@@ -54,9 +52,9 @@ impl Default for MyApp {
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let mut show_error = self.show_error;
+        let mut _show_error = self.show_error;
 
-        if show_error{
+        if _show_error{
             ctx.set_pixels_per_point(1.8);
 
             //top panel
