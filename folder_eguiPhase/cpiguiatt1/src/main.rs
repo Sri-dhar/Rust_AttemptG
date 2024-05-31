@@ -51,6 +51,11 @@ struct MyApp {
     grades: Vec<f32>,
     grade_input: String,
     calc_cpi_option: i32,
+    cpi_op1_var1: f32,
+    cpi_op1_var2: f32,
+    cpi_op1_var3: f32,
+    cpi_op1_var1_str: String,
+    cpi_op1_var2_str: String,
 }
 
 // impl MyApp {
@@ -86,6 +91,12 @@ impl Default for MyApp {
             grades: Vec::new(),
             grade_input: "0".to_string(),
             calc_cpi_option : 0,
+            cpi_op1_var1: 0.0,
+            cpi_op1_var2: 0.0,
+            cpi_op1_var3: 0.0,
+            cpi_op1_var1_str: "".to_string(),
+            cpi_op1_var2_str: "".to_string(),
+
         }
     }
 }
@@ -205,7 +216,8 @@ impl eframe::App for MyApp {
             ui.separator();
 
             // FOR SPI CALCULATION
-            if self.done_1 && self.option_cpi_spi == 0 && self.sem_no != 0
+            if (self.done_1 && self.option_cpi_spi == 0 && self.sem_no != 0) ||
+            (self.done_1 && self.option_cpi_spi == 1 && self.sem_no != 0 && self.sem_no == 1)
             {
 
                 self.sem_info = semdata::get_semesters(self.sem_no_f32).unwrap();
@@ -242,37 +254,132 @@ impl eframe::App for MyApp {
                 {
                     ui.add_space(10.0);
                     // ui.monospace(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi));
-                    ui.add(
-                        egui::Label::new(
-                            egui::RichText::new(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi))
-                                .heading(), // Use heading() method to set the text style to Heading
-                        ),
-                    );
+                    if self.sem_no == 1{
+                        ui.add(
+                            egui::Label::new(
+                                egui::RichText::new(format!("SPI and CPI of Semester {} is {:.3}", self.sem_no_f32, spi))
+                                    .heading(), // Use heading() method to set the text style to Heading
+                            ),
+                        );
+                    }
+                    else {
+                        {
+                            ui.add(
+                                egui::Label::new(
+                                    egui::RichText::new(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi))
+                                        .heading(), // Use heading() method to set the text style to Heading
+                                ),
+                            );
+                        }
+                    }
                     
                 }
             }
             
             //FOR CPI CALCULATION
-            else if self.done_1 && self.option_cpi_spi == 1 && self.sem_no != 0 {
+            else if self.done_1 && self.option_cpi_spi == 1 && self.sem_no != 0 && self.sem_no != 1{
                 ui.label("Calculating CPI");
-                ui.radio_value(&mut self.calc_cpi_option, 1, "Option 1");
-                ui.radio_value(&mut self.calc_cpi_option, 2, "Option 2");
+                let option1_label = format!("You have CPI till sem {} and want to calculate CPI of sem {}", self.sem_no -1, self.sem_no);
+                ui.radio_value(&mut self.calc_cpi_option, 1, &option1_label);
+                
+                let option2_label = format!("You have SPI of sem {} and CPI till sem {} And want to calculate CPI of sem {}", self.sem_no , self.sem_no-1, self.sem_no);
+                ui.radio_value(&mut self.calc_cpi_option, 2, &option2_label);
+
+                ui.separator();
+
+                // OPTION 1
+                if self.calc_cpi_option == 1
+                {
+                    ui.horizontal(|ui| {
+                        
+                        let mut uilabelstring1 = format!("Enter the value of CPI of sem {}", self.sem_no - 1);
+                        ui.label(&uilabelstring1);
+                        ui.text_edit_singleline(&mut self.cpi_op1_var1_str);
+                        if self.cpi_op1_var1_str.len() > 0
+                        {
+                            self.cpi_op1_var1 = self.cpi_op1_var1_str.parse::<f32>().unwrap();
+                            // println!("CPI of sem {} : {}", self.sem_no - 1,self.cpi_op1_var1);  
+                            // let mut tempStr = format!("The CPI of Sem {} is {} ", self.sem_no, self.cpi_op1_var1);
+                            // ui.label(&tempStr);
+                        }
+
+                        
+
+                        // self.cpi_op1_var1 = self.cpi_op1_var1_str.parse::<f32>().unwrap();
+
+                        // println!("Enter the value of CPI of sem {} : ", self.sem_no - 1);                        
+                        
+                        // ui.add(egui::Slider::new(&mut self.sem_no_f32, 1.0..=8.0).text("Semester"));
+                    });
+                    ui.add_space(5.0);
+
+                    //getting SPI
+                    let mut uplabelstring2 = format!("Enter the Grades of Sem {} :",self.sem_no);
+                    ui.label(&uplabelstring2);
+                    ui.add_space(2.0);
+
+                    self.sem_info = semdata::get_semesters(self.sem_no_f32).unwrap();
+                    GRADEINPUT.lock().unwrap().resize(self.sem_info.course_code.len(), String::new());
+                    if  GRADEINPUT.lock().unwrap().len() == 0{
+                        update_grade_info_size(self.sem_info.course_code.len());
+                    }
+                    let mut spi: f32 = 0.0;
+                    for i in 0..self.sem_info.course_code.len() {
+                        ui.add_space(2.0);
+                        ui.horizontal(|ui| {
+                            ui.label(format!("{} ", self.sem_info.course_code[i]).to_string());
+                            ui.label(format!("{} ", self.sem_info.course_name[i]).to_string());
+                            ui.label(format!(" Credit: {} ", self.sem_info.course_credit[i]).to_string()); 
+                        });
+                    
+                        //get grades in global vector of string
+                        ui.horizontal(|ui| {
+                            ui.label("Enter the grade : ");
+                            self.grades.push(0.0);
+                            let mut grade_int: i32 = self.grades[i] as i32;
+                            ui.add(egui::Slider::new(&mut grade_int, 0..=10).text("Grade"));
+                            self.grades[i] = grade_int as f32;
+                            GRADEINPUT.lock().unwrap()[i] = grade_int.to_string();
+                        });
+                        //print the entered grades
+                        // println!("{:?}", GRADEINPUT.lock().unwrap());
+                        if GRADEINPUT.lock().unwrap().iter().all(|grade| !grade.is_empty()) {
+                            spi = functions::calc_SPI(self.sem_no_f32, GRADEINPUT.lock().unwrap().clone());
+                        }
+                    }
+                    ui.label(format!("CPI of Semester {} is {:.3}", self.sem_no_f32, spi));
+
+                    
+                }
+
+                else if self.calc_cpi_option  == 2{
+                    let mut uilabelstring2 = format!("Enter the value of SPI of sem {}", self.sem_no);
+
+                    let mut uilabelstring3 = format!("Enter the value of CPI of sem {}", self.sem_no - 1);
+
+                    //
+                    //
+                    //
+                    //
+                    //WORKING HERE
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //
+
+                }
+
+
             }
-            if self.calc_cpi_option != 0 && self.option_cpi_spi == 1{
-                ui.label("Option selected");
-                ui.label(format!("{}", self.calc_cpi_option).to_string());            
-            }
-            
+
+
             
 
         });
 
-        // ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-        // ██░▄▄▀█▀▄▄▀█▄░▄█▄░▄█▀▄▄▀█░▄▀▄░████░▄▄░█░▄▄▀█░▄▄▀█░▄▄█░█
-        // ██░▄▄▀█░██░██░███░██░██░█░█▄█░████░▀▀░█░▀▀░█░██░█░▄▄█░█
-        // ██░▀▀░██▄▄███▄███▄███▄▄██▄███▄████░████▄██▄█▄██▄█▄▄▄█▄▄
-        // ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀
-
+        
         egui::TopBottomPanel::bottom("Bottom Panel").show(ctx, |ui| {
             ui.vertical(|ui| {
                 ui.add_space(5.0);
