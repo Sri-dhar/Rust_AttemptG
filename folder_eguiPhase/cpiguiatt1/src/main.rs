@@ -35,11 +35,7 @@ fn main() -> Result<(), eframe::Error> {
 }
 
 struct MyApp {
-    _name: String,
-    _age: u32,
-    _show_error: bool,
-    _var1: i32,
-    _var2: i32,
+
     show_scale_window: bool,
     scale_input: String,
     option_cpi_spi: i32,
@@ -53,10 +49,7 @@ struct MyApp {
     grade_input: String,
     calc_cpi_option: i32,
     cpi_op1_var1: f32,
-    cpi_op1_var2: f32,
-    cpi_op1_var3: f32,
     cpi_op1_var1_str: String,
-    cpi_op1_var2_str: String,
     cpi_op2_var1_str: String,
     cpi_op2_var1: f32,
     cpi_op2_var2_str: String,
@@ -72,11 +65,6 @@ struct MyApp {
 impl Default for MyApp {
     fn default() -> Self {
         Self {
-            _name: "Arthur".to_owned(),
-            _age: 42,
-            _show_error: true,
-            _var1: 10,
-            _var2: 20,
             show_scale_window: false,
             scale_input: "1.2".to_string(),
             option_cpi_spi: -1,
@@ -97,10 +85,7 @@ impl Default for MyApp {
             grade_input: "0".to_string(),
             calc_cpi_option : 0,
             cpi_op1_var1: 0.0,
-            cpi_op1_var2: 0.0,
-            cpi_op1_var3: 0.0,
             cpi_op1_var1_str: "".to_string(),
-            cpi_op1_var2_str: "".to_string(),
             cpi_op2_var1_str: "".to_string(),
             cpi_op2_var1: 0.0,
             cpi_op2_var2_str: "".to_string(),
@@ -188,12 +173,12 @@ impl eframe::App for MyApp {
 
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            let scroll_area = ScrollArea::vertical().max_height(500.0); // Adjust the max_height as needed
+            let scroll_area = ScrollArea::vertical().max_height(1000.0); // Adjust the max_height as needed
             scroll_area.show(ui, |ui| {
 
 
 
-                ui.heading("CPI/SPI Calculator");
+                ui.heading("CPI / SPI Calculator");
             ui.separator();
 
             egui::ComboBox::from_label("Select Calculation")
@@ -299,7 +284,7 @@ impl eframe::App for MyApp {
                     //print the entered grades
                     // println!("{:?}", GRADEINPUT.lock().unwrap());
                     if GRADEINPUT.lock().unwrap().iter().all(|grade| !grade.is_empty()) {
-                        spi = functions::calc_SPI(self.sem_no_f32, GRADEINPUT.lock().unwrap().clone());
+                        spi = functions::calc_spi(self.sem_no_f32, GRADEINPUT.lock().unwrap().clone());
                     }
                 }
                 if SHOW_SPI.lock().unwrap().to_owned()
@@ -326,6 +311,7 @@ impl eframe::App for MyApp {
                     }
                     
                 }
+                ui.add_space(100.0); //for scrolling ease
             }
             
             //FOR CPI CALCULATION
@@ -344,7 +330,7 @@ impl eframe::App for MyApp {
                 {
                     ui.horizontal(|ui| {
                         
-                        let mut uilabelstring1 = format!("Enter the value of CPI of sem {}", self.sem_no - 1);
+                        let uilabelstring1 = format!("Enter the value of CPI of sem {}", self.sem_no - 1);
                         ui.label(&uilabelstring1);
                         ui.text_edit_singleline(&mut self.cpi_op1_var1_str);
                         if self.cpi_op1_var1_str.len() > 0
@@ -366,7 +352,7 @@ impl eframe::App for MyApp {
                     ui.add_space(5.0);
 
                     //getting SPI
-                    let mut uplabelstring2 = format!("Enter the Grades of Sem {} :",self.sem_no);
+                    let uplabelstring2: String = format!("Enter the Grades of Sem {} :",self.sem_no);
                     ui.label(&uplabelstring2);
                     ui.add_space(2.0);
 
@@ -396,21 +382,30 @@ impl eframe::App for MyApp {
                         //print the entered grades
                         // println!("{:?}", GRADEINPUT.lock().unwrap());
                         if GRADEINPUT.lock().unwrap().iter().all(|grade| !grade.is_empty()) {
-                            spi = functions::calc_SPI(self.sem_no_f32, GRADEINPUT.lock().unwrap().clone());
+                            spi = functions::calc_spi(self.sem_no_f32, GRADEINPUT.lock().unwrap().clone());
                         }
                     }
                     ui.add_space(5.0);
-                    ui.label(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi));
+                    ui.add(
+                        egui::Label::new(
+                            egui::RichText::new(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi))
+                                .heading(),
+                        ),
+                    );
                     ui.add_space(3.0);
-                    ui.label(format!("CPI of Semester {} is {:.3}", self.sem_no_f32, functions::calculate_cpi_option3(self.sem_no_f32, self.cpi_op1_var1, spi) ));
-
+                    ui.add(
+                        egui::Label::new(
+                            egui::RichText::new(format!("CPI of Semester {} is {:.3}", self.sem_no_f32, functions::calculate_cpi_option3(self.sem_no_f32, self.cpi_op1_var1, spi)))
+                                .heading(),
+                        ),
+                    );
                     
                 }
 
                 else if self.calc_cpi_option  == 2{
-                    let mut uilabelstring2 = format!("Enter the value of SPI of sem {}", self.sem_no);
+                    let uilabelstring2 = format!("Enter the value of SPI of sem {}", self.sem_no);
 
-                    let mut uilabelstring3 = format!("Enter the value of CPI of sem {}", self.sem_no - 1);
+                    let uilabelstring3 = format!("Enter the value of CPI of sem {}", self.sem_no - 1);
                     
                     ui.label(&uilabelstring3);
                     ui.horizontal(|ui|{
@@ -431,10 +426,15 @@ impl eframe::App for MyApp {
                     });
 
                     ui.add_space(5.0);
-                    let mut uilabelstring4 = format!("CPI of Semester {} is {:.3}", self.sem_no, functions::calculate_cpi_option3(self.sem_no_f32, self.cpi_op2_var1, self.cpi_op2_var2)); 
-                    ui.label(&uilabelstring4); 
+                    let uilabelstring4 = format!("CPI of Semester {} is {:.3}", self.sem_no, functions::calculate_cpi_option3(self.sem_no_f32, self.cpi_op2_var1, self.cpi_op2_var2)); 
+                    ui.add(
+                        egui::Label::new(
+                            egui::RichText::new(uilabelstring4)
+                                .heading(),
+                        ),
+                    );
                 }
-
+                ui.add_space(100.0); 
 
             }
 
