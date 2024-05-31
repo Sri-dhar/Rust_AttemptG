@@ -23,7 +23,7 @@ lazy_static::lazy_static! {
 fn main() -> Result<(), eframe::Error> {
 
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([1600.0, 800.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([900.0, 1200.0]),
         ..Default::default()
     };
     eframe::run_native(
@@ -106,7 +106,7 @@ impl eframe::App for MyApp {
 
         TopBottomPanel::top("Top Panel").show(ctx, |ui| {
             egui::menu::bar(ui, |ui| {
-                ui.menu_button("Menu", |ui| {
+                ui.menu_button(" Menu", |ui| {
                     if ui.button("Change Scale").clicked() {
                         if self.show_scale_window {
                             self.show_scale_window = false;
