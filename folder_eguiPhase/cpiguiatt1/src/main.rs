@@ -108,7 +108,11 @@ impl eframe::App for MyApp {
             egui::menu::bar(ui, |ui| {
                 ui.menu_button("Menu", |ui| {
                     if ui.button("Change Scale").clicked() {
-                        self.show_scale_window = true;
+                        if self.show_scale_window {
+                            self.show_scale_window = false;
+                        } else {
+                            self.show_scale_window = true;
+                        }
                     }
                     if ui.button(
                         if *SHOWACTIONBAR.lock().unwrap() == true {
