@@ -17,6 +17,7 @@ lazy_static::lazy_static! {
     static ref GRADEINPUT: Mutex<Vec<String>> = Mutex::new(Vec::new());
     static ref SHOW_SPI: Mutex<bool> = Mutex::new(false);
     static ref SHOWGRADETABLE : Mutex<bool> = Mutex::new(false);
+    static ref SHOWACTIONBAR : Mutex<bool> = Mutex::new(true);
 }
 
 fn main() -> Result<(), eframe::Error> {
@@ -108,6 +109,19 @@ impl eframe::App for MyApp {
                 ui.menu_button("Menu", |ui| {
                     if ui.button("Change Scale").clicked() {
                         self.show_scale_window = true;
+                    }
+                    if ui.button(
+                        if *SHOWACTIONBAR.lock().unwrap() == true {
+                            "Hide Action Bar"
+                        } else {
+                            "Show Action Bar"
+                        },
+                    ).clicked() {
+                        if *SHOWACTIONBAR.lock().unwrap() == true {
+                            *SHOWACTIONBAR.lock().unwrap() = false;
+                        } else {
+                            *SHOWACTIONBAR.lock().unwrap() = true;
+                        }
                     }
                 });
             });
@@ -447,54 +461,56 @@ impl eframe::App for MyApp {
 
         });
 
-        
-        egui::TopBottomPanel::bottom("Bottom Panel").show(ctx, |ui| {
-            ui.vertical(|ui| {
-                ui.add_space(5.0);
-                ui.horizontal(|ui|(
-                    
-                    if ui.button(if *SHOWGRADETABLE.lock().unwrap() == true {"Hide Grade Table"} else {"Show Grade Table"})
-                    .clicked() {
-                        if *SHOWGRADETABLE.lock().unwrap() == true{
-                            *SHOWGRADETABLE.lock().unwrap() = false;
-                        }
-                        else{
-                            *SHOWGRADETABLE.lock().unwrap() = true;
-                        }
-                    },
-                    if ui.button("Reset").clicked() {
-                        self.option_cpi_spi = -1;
-                        self.sem_no = 0;
-                        self.sem_no_f32 = 0.0;
-                        self.sem_no_str = "0".to_string();
-                        self.sem_option = 0;
-                        self.done_1 = false;
-                        self.sem_info = semdata::Semester {
-                            sem_no: 0.0,
-                            course_code: vec![],
-                            course_name: vec![],
-                            course_credit: vec![],
-                            total_credit: 0.0,
-                            total_credit_till_sem: 0.0,
-                        };
-                        self.grades = Vec::new();
-                        self.grade_input = "0".to_string();
-                    },
-                    if ui.button("Quit").clicked() {
-                        std::process::exit(0);
-                    },
-                    if ui.button("Quit and Rerun").clicked() {
-                        ctx.send_viewport_cmd(ViewportCommand::Close);
-                        Command::new("cargo")
-                        .arg("run")
-                        .spawn()
-                        .expect("Failed to execute command");
-                    },
-                ));
-                ui.add_space(2.0);
-            });
-        });
+        if *SHOWACTIONBAR.lock().unwrap() == true
+        {
+            
+            egui::TopBottomPanel::bottom("Bottom Panel").show(ctx, |ui| {
+                ui.vertical(|ui| {
+                    ui.add_space(5.0);
+                    ui.horizontal(|ui|(
 
+                        if ui.button(if *SHOWGRADETABLE.lock().unwrap() == true {"Hide Grade Table"} else {"Show Grade Table"})
+                        .clicked() {
+                            if *SHOWGRADETABLE.lock().unwrap() == true{
+                                *SHOWGRADETABLE.lock().unwrap() = false;
+                            }
+                            else{
+                                *SHOWGRADETABLE.lock().unwrap() = true;
+                            }
+                        },
+                        if ui.button("Reset").clicked() {
+                            self.option_cpi_spi = -1;
+                            self.sem_no = 0;
+                            self.sem_no_f32 = 0.0;
+                            self.sem_no_str = "0".to_string();
+                            self.sem_option = 0;
+                            self.done_1 = false;
+                            self.sem_info = semdata::Semester {
+                                sem_no: 0.0,
+                                course_code: vec![],
+                                course_name: vec![],
+                                course_credit: vec![],
+                                total_credit: 0.0,
+                                total_credit_till_sem: 0.0,
+                            };
+                            self.grades = Vec::new();
+                            self.grade_input = "0".to_string();
+                        },
+                        if ui.button("Quit").clicked() {
+                            std::process::exit(0);
+                        },
+                        if ui.button("Quit and Rerun").clicked() {
+                            ctx.send_viewport_cmd(ViewportCommand::Close);
+                            Command::new("cargo")
+                            .arg("run")
+                            .spawn()
+                            .expect("Failed to execute command");
+                        },
+                    ));
+                    ui.add_space(2.0);
+                });
+            });
+        }
     }
 }
 
