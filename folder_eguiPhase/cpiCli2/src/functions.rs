@@ -1,8 +1,8 @@
 use crate::semdata;
 
 pub fn get_grade_of_student(sem_no: f32) -> Vec<f32> {
-    let semesters = semdata::get_semesters(sem_no).unwrap();
-    let mut grades = Vec::new(); 
+    let semesters: semdata::Semester = semdata::get_semesters(sem_no).unwrap();
+    let mut grades: Vec<f32> = Vec::new(); 
     
     for i in 0..semesters.course_name.len() {
         println!("Enter the grade of {} ({}) with Credit {}", semesters.course_name[i], semesters.course_code[i], semesters.course_credit[i]);

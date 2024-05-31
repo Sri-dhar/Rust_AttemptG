@@ -3,6 +3,9 @@ mod semdata;
 use std::sync::Mutex;
 use eframe::egui;
 use egui::TopBottomPanel;
+use egui::ViewportCommand;
+use std::process::Command;
+
 // use egui_extras;
 // use egui::{Button, ViewportCommand};
 
@@ -10,6 +13,9 @@ extern crate lazy_static;
 
 lazy_static::lazy_static! {
     static ref SCALE: Mutex<f32> = Mutex::new(1.5);
+    //create a vector of string of size 10
+    static ref GRADEINPUT: Mutex<Vec<String>> = Mutex::new(Vec::new());
+    static ref SHOW_SPI: Mutex<bool> = Mutex::new(false);
 }
 
 fn main() -> Result<(), eframe::Error> {
@@ -21,18 +27,18 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "CPI/SPI Calculator",
         options,
-        Box::new(|cc| {
+        Box::new(|_cc| {
             Box::new(MyApp::default())
         }),
     )
 }
 
 struct MyApp {
-    name: String,
-    age: u32,
-    show_error: bool,
-    var1: i32,
-    var2: i32,
+    _name: String,
+    _age: u32,
+    _show_error: bool,
+    _var1: i32,
+    _var2: i32,
     show_scale_window: bool,
     scale_input: String,
     option_cpi_spi: i32,
@@ -40,6 +46,11 @@ struct MyApp {
     sem_no_f32 : f32,
     sem_no_str : String,
     sem_option : i32,
+    done_1: bool,
+    sem_info : semdata::Semester,
+    grades: Vec<f32>,
+    grade_input: String,
+    calc_cpi_option: i32,
 }
 
 // impl MyApp {
@@ -51,11 +62,11 @@ struct MyApp {
 impl Default for MyApp {
     fn default() -> Self {
         Self {
-            name: "Arthur".to_owned(),
-            age: 42,
-            show_error: true,
-            var1: 10,
-            var2: 20,
+            _name: "Arthur".to_owned(),
+            _age: 42,
+            _show_error: true,
+            _var1: 10,
+            _var2: 20,
             show_scale_window: false,
             scale_input: "1.2".to_string(),
             option_cpi_spi: -1,
@@ -63,6 +74,18 @@ impl Default for MyApp {
             sem_no_f32: 0.0,
             sem_no_str: "0".to_string(),
             sem_option: 0,
+            done_1: false,
+            sem_info : semdata::Semester {
+                sem_no: 0.0,
+                course_code: vec![],
+                course_name: vec![],
+                course_credit: vec![],
+                total_credit: 0.0,
+                total_credit_till_sem: 0.0,
+            },
+            grades: Vec::new(),
+            grade_input: "0".to_string(),
+            calc_cpi_option : 0,
         }
     }
 }
@@ -121,45 +144,50 @@ impl eframe::App for MyApp {
                     ui.selectable_value(&mut self.option_cpi_spi, 1, "Calculate CPI");
                 });
             
-            if self.option_cpi_spi == 0 || self.option_cpi_spi == 1{
+            if self.option_cpi_spi == 0 || self.option_cpi_spi == 1
+            {
                 ui.horizontal(
                     |ui| {
                         ui.label("Select the semester :");
                         ui.add(egui::Slider::new(&mut self.sem_no, 1..=8).text("Semester"));                         
                     }
                 );
-                ui.horizontal(
-                    |ui| {
-                        if self.sem_no == 7 {
-                            ui.label("Select an option");
-                            egui::ComboBox::from_label("")
-                                .selected_text(match self.sem_option {
-                                    1 => "Option 1",
-                                    2 => "Option 2",
-                                    _ => "Select",
-                                })
-                                .show_ui(ui, |ui| {
-                                    ui.selectable_value(&mut self.sem_option, 1, "Option 1");
-                                    ui.selectable_value(&mut self.sem_option, 2, "Option 2");
-                                });
+
+                if self.sem_no == 7 || self.sem_no == 8
+                {
+                    ui.horizontal(
+                        |ui| {
+                            if self.sem_no == 7 {
+                                ui.label("Select an option");
+                                egui::ComboBox::from_label("")
+                                    .selected_text(match self.sem_option {
+                                        1 => "Option 1",
+                                        2 => "Option 2",
+                                        _ => "Select",
+                                    })
+                                    .show_ui(ui, |ui| {
+                                        ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                        ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                                    });
+                            }
+                            else if self.sem_no == 8 {
+                                ui.label("Select an option");
+                                egui::ComboBox::from_label("")
+                                    .selected_text(match self.sem_option {
+                                        1 => "Option 1",
+                                        2 => "Option 2",
+                                        3 => "Option 3",
+                                        _ => "Select",
+                                    })
+                                    .show_ui(ui, |ui| {
+                                        ui.selectable_value(&mut self.sem_option, 1, "Option 1");
+                                        ui.selectable_value(&mut self.sem_option, 2, "Option 2");
+                                        ui.selectable_value(&mut self.sem_option, 3, "Option 3");
+                                    });
+                            }
                         }
-                        else if self.sem_no == 8 {
-                            ui.label("Select an option");
-                            egui::ComboBox::from_label("")
-                                .selected_text(match self.sem_option {
-                                    1 => "Option 1",
-                                    2 => "Option 2",
-                                    3 => "Option 3",
-                                    _ => "Select",
-                                })
-                                .show_ui(ui, |ui| {
-                                    ui.selectable_value(&mut self.sem_option, 1, "Option 1");
-                                    ui.selectable_value(&mut self.sem_option, 2, "Option 2");
-                                    ui.selectable_value(&mut self.sem_option, 3, "Option 3");
-                                });
-                        }
-                    }
-                ); 
+                    ); 
+                }
                 
                 ui.horizontal(|ui| {
                     self.sem_no_f32 = self.sem_no as f32 ;
@@ -167,22 +195,124 @@ impl eframe::App for MyApp {
                     if self.sem_no == 7 || self.sem_no == 8
                     {
                         self.sem_no_f32 = self.sem_no_f32 + 0.1 * self.sem_option as f32;
-                        ui.label(format!("Option {}", self.sem_option).to_string());
+                        ui.label(format!("Option : {}", self.sem_option).to_string());
                     }
                 });
             }
+            if ui.button("Done").clicked() {
+                self.done_1 = true;
+            }
+            ui.separator();
+
+            // FOR SPI CALCULATION
+            if self.done_1 && self.option_cpi_spi == 0 && self.sem_no != 0
+            {
+
+                self.sem_info = semdata::get_semesters(self.sem_no_f32).unwrap();
+                GRADEINPUT.lock().unwrap().resize(self.sem_info.course_code.len(), String::new());
+                if  GRADEINPUT.lock().unwrap().len() == 0{
+                    update_grade_info_size(self.sem_info.course_code.len());
+                }
+                let mut spi: f32 = 0.0;
+                for i in 0..self.sem_info.course_code.len()
+                {
+                    ui.add_space(2.0);
+                    ui.horizontal(|ui| {
+                        ui.label(format!("{} ", self.sem_info.course_code[i]).to_string());
+                        ui.label(format!("{} ", self.sem_info.course_name[i]).to_string());
+                        ui.label(format!(" Credit: {} ", self.sem_info.course_credit[i]).to_string()); 
+                    });
+
+                    //get greades in global vector of string
+                    ui.horizontal(|ui| {
+                        ui.label("Enter the grade : ");
+                        self.grades.push(0.0);
+                        let mut grade_int: i32 = self.grades[i] as i32;
+                        ui.add(egui::Slider::new(&mut grade_int, 0..=10).text("Grade"));
+                        self.grades[i] = grade_int as f32;
+                        GRADEINPUT.lock().unwrap()[i] = grade_int.to_string();
+                    });
+                    //print the entered grades
+                    // println!("{:?}", GRADEINPUT.lock().unwrap());
+                    if GRADEINPUT.lock().unwrap().iter().all(|grade| !grade.is_empty()) {
+                        spi = functions::calc_SPI(self.sem_no_f32, GRADEINPUT.lock().unwrap().clone());
+                    }
+                }
+                if SHOW_SPI.lock().unwrap().to_owned()
+                {
+                    ui.add_space(10.0);
+                    // ui.monospace(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi));
+                    ui.add(
+                        egui::Label::new(
+                            egui::RichText::new(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi))
+                                .heading(), // Use heading() method to set the text style to Heading
+                        ),
+                    );
+                    
+                }
+            }
+            
+            //FOR CPI CALCULATION
+            else if self.done_1 && self.option_cpi_spi == 1 && self.sem_no != 0 {
+                ui.label("Calculating CPI");
+                ui.radio_value(&mut self.calc_cpi_option, 1, "Option 1");
+                ui.radio_value(&mut self.calc_cpi_option, 2, "Option 2");
+            }
+            if self.calc_cpi_option != 0 && self.option_cpi_spi == 1{
+                ui.label("Option selected");
+                ui.label(format!("{}", self.calc_cpi_option).to_string());            
+            }
+            
+            
 
         });
 
         egui::TopBottomPanel::bottom("Bottom Panel").show(ctx, |ui| {
             ui.vertical(|ui| {
                 ui.add_space(5.0);
-                if ui.button("Quit").clicked() {
-                    std::process::exit(0);
-                };
+                ui.horizontal(|ui|(
+                    if ui.button("Quit").clicked() {
+                        std::process::exit(0);
+                    },
+                    if ui.button("Quit and Rerun").clicked() {
+                        ctx.send_viewport_cmd(ViewportCommand::Close);
+                        Command::new("cargo")
+                        .arg("run")
+                        .spawn()
+                        .expect("Failed to execute command");
+                    },
+                    if ui.button("Reset").clicked() {
+                        self.option_cpi_spi = -1;
+                        self.sem_no = 0;
+                        self.sem_no_f32 = 0.0;
+                        self.sem_no_str = "0".to_string();
+                        self.sem_option = 0;
+                        self.done_1 = false;
+                        self.sem_info = semdata::Semester {
+                            sem_no: 0.0,
+                            course_code: vec![],
+                            course_name: vec![],
+                            course_credit: vec![],
+                            total_credit: 0.0,
+                            total_credit_till_sem: 0.0,
+                        };
+                        self.grades = Vec::new();
+                        self.grade_input = "0".to_string();
+                    },
+                ));
                 ui.add_space(2.0);
             });
         });
 
+    }
+}
+
+fn update_grade_info_size(size: usize)
+{
+    let mut grade_input = GRADEINPUT.lock().unwrap();
+    grade_input.clear();
+    for _i in 0..size
+    {
+        grade_input.push("".to_string());
     }
 }

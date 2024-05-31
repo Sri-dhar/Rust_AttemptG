@@ -1,4 +1,5 @@
 use crate::semdata;
+use crate::SHOW_SPI;
 
 //create write data and read data function 
 pub fn write_data(scale: f32) {
@@ -33,6 +34,20 @@ pub fn calculate_spi_n(sem_no: f32, grades: Vec<f32>) -> f32 {
         spi += grades[i] * semesters.course_credit[i];
     }
     spi / total_credit
+}
+
+pub fn calc_SPI(sem_no: f32, grades: Vec<String>) -> f32 {
+    let mut grades_recieved_by_student: Vec<f32> = Vec::new();
+    for i in 0..grades.len() {
+        let grade: f32 = grades[i].parse().expect("Invalid grade");
+        // println!("Grade of course {} is {}", i+1, grade);
+        grades_recieved_by_student.push(grade);
+    }
+    let spi = calculate_spi_n(sem_no, grades_recieved_by_student);
+    // println!("SPI of Semester {} is {:.3}", sem_no, spi);
+    //make SHOW_SPI TRUE
+    *SHOW_SPI.lock().unwrap() = true;
+    spi
 }
 
 pub fn calculate_spi(){
