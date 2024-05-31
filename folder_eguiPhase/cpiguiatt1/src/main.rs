@@ -5,6 +5,7 @@ use eframe::egui;
 use egui::TopBottomPanel;
 use egui::ViewportCommand;
 use std::process::Command;
+use egui::ScrollArea;
 
 // use egui_extras;
 // use egui::{Button, ViewportCommand};
@@ -151,7 +152,12 @@ impl eframe::App for MyApp {
 
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("CPI/SPI Calculator");
+            let scroll_area = ScrollArea::vertical().max_height(500.0); // Adjust the max_height as needed
+            scroll_area.show(ui, |ui| {
+
+
+
+                ui.heading("CPI/SPI Calculator");
             ui.separator();
 
             egui::ComboBox::from_label("Select Calculation")
@@ -395,6 +401,10 @@ impl eframe::App for MyApp {
 
 
             }
+
+
+            });
+            
 
 
             
