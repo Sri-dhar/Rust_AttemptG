@@ -16,6 +16,7 @@ lazy_static::lazy_static! {
     //create a vector of string of size 10
     static ref GRADEINPUT: Mutex<Vec<String>> = Mutex::new(Vec::new());
     static ref SHOW_SPI: Mutex<bool> = Mutex::new(false);
+    static ref SHOWGRADETABLE : Mutex<bool> = Mutex::new(false);
 }
 
 fn main() -> Result<(), eframe::Error> {
@@ -56,6 +57,10 @@ struct MyApp {
     cpi_op1_var3: f32,
     cpi_op1_var1_str: String,
     cpi_op1_var2_str: String,
+    cpi_op2_var1_str: String,
+    cpi_op2_var1: f32,
+    cpi_op2_var2_str: String,
+    cpi_op2_var2: f32,    
 }
 
 // impl MyApp {
@@ -96,6 +101,11 @@ impl Default for MyApp {
             cpi_op1_var3: 0.0,
             cpi_op1_var1_str: "".to_string(),
             cpi_op1_var2_str: "".to_string(),
+            cpi_op2_var1_str: "".to_string(),
+            cpi_op2_var1: 0.0,
+            cpi_op2_var2_str: "".to_string(),
+            cpi_op2_var2: 0.0,
+
 
         }
     }
@@ -279,10 +289,10 @@ impl eframe::App for MyApp {
             //FOR CPI CALCULATION
             else if self.done_1 && self.option_cpi_spi == 1 && self.sem_no != 0 && self.sem_no != 1{
                 ui.label("Calculating CPI");
-                let option1_label = format!("You have CPI till sem {} and want to calculate CPI of sem {}", self.sem_no -1, self.sem_no);
+                let option1_label = format!("You have the CPI till sem {} and want to calculate the CPI of sem {}", self.sem_no -1, self.sem_no);
                 ui.radio_value(&mut self.calc_cpi_option, 1, &option1_label);
                 
-                let option2_label = format!("You have SPI of sem {} and CPI till sem {} And want to calculate CPI of sem {}", self.sem_no , self.sem_no-1, self.sem_no);
+                let option2_label = format!("You have the SPI of sem {} and the CPI till sem {} And want to calculate the CPI of sem {}", self.sem_no , self.sem_no-1, self.sem_no);
                 ui.radio_value(&mut self.calc_cpi_option, 2, &option2_label);
 
                 ui.separator();
@@ -347,7 +357,10 @@ impl eframe::App for MyApp {
                             spi = functions::calc_SPI(self.sem_no_f32, GRADEINPUT.lock().unwrap().clone());
                         }
                     }
-                    ui.label(format!("CPI of Semester {} is {:.3}", self.sem_no_f32, spi));
+                    ui.add_space(5.0);
+                    ui.label(format!("SPI of Semester {} is {:.3}", self.sem_no_f32, spi));
+                    ui.add_space(3.0);
+                    ui.label(format!("CPI of Semester {} is {:.3}", self.sem_no_f32, functions::calculate_cpi_option3(self.sem_no_f32, self.cpi_op1_var1, spi) ));
 
                     
                 }
@@ -356,19 +369,28 @@ impl eframe::App for MyApp {
                     let mut uilabelstring2 = format!("Enter the value of SPI of sem {}", self.sem_no);
 
                     let mut uilabelstring3 = format!("Enter the value of CPI of sem {}", self.sem_no - 1);
+                    
+                    ui.label(&uilabelstring3);
+                    ui.horizontal(|ui|{
+                        ui.text_edit_singleline(&mut self.cpi_op2_var1_str);
+                        if self.cpi_op2_var1_str.len() > 0
+                        {
+                            self.cpi_op2_var1 = self.cpi_op2_var1_str.parse::<f32>().unwrap();
+                        }
+                    });
 
-                    //
-                    //
-                    //
-                    //
-                    //WORKING HERE
-                    //
-                    //
-                    //
-                    //
-                    //
-                    //
+                    ui.label(&uilabelstring2);
+                    ui.horizontal(|ui|{
+                        ui.text_edit_singleline(&mut self.cpi_op2_var2_str);
+                        if self.cpi_op2_var2_str.len() > 0
+                        {
+                            self.cpi_op2_var2 = self.cpi_op2_var2_str.parse::<f32>().unwrap();
+                        }
+                    });
 
+                    ui.add_space(5.0);
+                    let mut uilabelstring4 = format!("CPI of Semester {} is {:.3}", self.sem_no, functions::calculate_cpi_option3(self.sem_no_f32, self.cpi_op2_var1, self.cpi_op2_var2)); 
+                    ui.label(&uilabelstring4); 
                 }
 
 
@@ -384,15 +406,13 @@ impl eframe::App for MyApp {
             ui.vertical(|ui| {
                 ui.add_space(5.0);
                 ui.horizontal(|ui|(
-                    if ui.button("Quit").clicked() {
-                        std::process::exit(0);
-                    },
-                    if ui.button("Quit and Rerun").clicked() {
-                        ctx.send_viewport_cmd(ViewportCommand::Close);
-                        Command::new("cargo")
-                        .arg("run")
-                        .spawn()
-                        .expect("Failed to execute command");
+                    if ui.button("Grade Table").clicked() {
+                        if *SHOWGRADETABLE.lock().unwrap() == true{
+                            *SHOWGRADETABLE.lock().unwrap() = false;
+                        }
+                        else{
+                            *SHOWGRADETABLE.lock().unwrap() = true;
+                        }
                     },
                     if ui.button("Reset").clicked() {
                         self.option_cpi_spi = -1;
@@ -411,6 +431,16 @@ impl eframe::App for MyApp {
                         };
                         self.grades = Vec::new();
                         self.grade_input = "0".to_string();
+                    },
+                    if ui.button("Quit").clicked() {
+                        std::process::exit(0);
+                    },
+                    if ui.button("Quit and Rerun").clicked() {
+                        ctx.send_viewport_cmd(ViewportCommand::Close);
+                        Command::new("cargo")
+                        .arg("run")
+                        .spawn()
+                        .expect("Failed to execute command");
                     },
                 ));
                 ui.add_space(2.0);

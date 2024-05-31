@@ -107,6 +107,18 @@ pub fn calculate_cpi_option2(x: f32)
     println!("CPI of sem {} is {:.3}", x, cpi_of_sem_x);
 }
 
+pub fn calculate_cpi_option3(x: f32, cpi_of_xminus1: f32, spi_of_x: f32) -> f32 {
+    let semester_x = semdata::get_semesters(x).unwrap();
+    let semester_x_minus_1 = semdata::get_semesters(x-1.0).unwrap();
+
+    let credit_of_sem_x :f32 = semester_x.total_credit;
+    let cum_sum_of_credit_till_sem_x_minus_1 :f32 = semester_x_minus_1.total_credit_till_sem;
+
+    let cpi_of_sem_x = (cpi_of_xminus1 * cum_sum_of_credit_till_sem_x_minus_1 + spi_of_x * credit_of_sem_x) / (cum_sum_of_credit_till_sem_x_minus_1 + credit_of_sem_x);
+    
+    cpi_of_sem_x
+}
+
 pub fn calculate_cpi()
 {
     println!("Select An Option : ");
