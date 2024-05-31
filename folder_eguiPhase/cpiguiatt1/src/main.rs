@@ -14,7 +14,6 @@ extern crate lazy_static;
 
 lazy_static::lazy_static! {
     static ref SCALE: Mutex<f32> = Mutex::new(1.5);
-    //create a vector of string of size 10
     static ref GRADEINPUT: Mutex<Vec<String>> = Mutex::new(Vec::new());
     static ref SHOW_SPI: Mutex<bool> = Mutex::new(false);
     static ref SHOWGRADETABLE : Mutex<bool> = Mutex::new(false);
@@ -147,6 +146,43 @@ impl eframe::App for MyApp {
                 if ui.button("Close").clicked() {
                     self.show_scale_window = false;
                 }
+            });
+        }
+
+        if *SHOWGRADETABLE.lock().unwrap() == true
+        {
+            egui::Window::new("Grade Table").show(ctx, |ui| {
+                ui.vertical(|ui| {
+                    ui.label("Grades      Points");
+                    egui::Grid::new("grade_table")
+                        .striped(true)
+                        .min_col_width(60.0)
+                        .show(ui, |ui| {
+                            ui.label("AA"); ui.label("10");
+                            ui.end_row();
+
+                            ui.label("AB"); ui.label("9");
+                            ui.end_row();
+
+                            ui.label("BB"); ui.label("8");
+                            ui.end_row();
+
+                            ui.label("BC"); ui.label("7");
+                            ui.end_row();
+
+                            ui.label("CC"); ui.label("6");
+                            ui.end_row();
+
+                            ui.label("CD"); ui.label("5");
+                            ui.end_row();
+
+                            ui.label("DD"); ui.label("4");
+                            ui.end_row();
+
+                            ui.label("FF"); ui.label("0");
+                            ui.end_row();
+                        });
+                });
             });
         }
 
@@ -416,7 +452,9 @@ impl eframe::App for MyApp {
             ui.vertical(|ui| {
                 ui.add_space(5.0);
                 ui.horizontal(|ui|(
-                    if ui.button("Grade Table").clicked() {
+                    
+                    if ui.button(if *SHOWGRADETABLE.lock().unwrap() == true {"Hide Grade Table"} else {"Show Grade Table"})
+                    .clicked() {
                         if *SHOWGRADETABLE.lock().unwrap() == true{
                             *SHOWGRADETABLE.lock().unwrap() = false;
                         }
