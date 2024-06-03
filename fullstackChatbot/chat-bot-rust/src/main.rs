@@ -3,6 +3,7 @@ use cfg_if::cfg_if;
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // debug logging, disable for prod
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
 
@@ -75,10 +76,17 @@ cfg_if! {
 
 #[cfg(not(any(feature = "ssr", feature = "csr")))]
 pub fn main() {
+    // no client-side main function
+    // unless we want this to work with e.g., Trunk for pure client-side testing
+    // see lib.rs for hydration function instead
+    // see optional feature `ssg` instead
 }
 
 #[cfg(all(not(feature = "ssr"), feature = "csr"))]
 pub fn main() {
+    // a client-side main function is required for using `trunk serve`
+    // prefer using `cargo leptos serve` instead
+    // to run: `trunk serve --open --features ssg`
     use leptos::*;
     use leptos_start::app::*;
     use wasm_bindgen::prelude::wasm_bindgen;
@@ -86,6 +94,8 @@ pub fn main() {
     console_error_panic_hook::set_once();
 
     leptos::mount_to_body(move |cx| {
+        // note: for testing it may be preferrable to replace this with a
+        // more specific component, although leptos_router should still work
         view! {cx, <App/> }
     });
 }
