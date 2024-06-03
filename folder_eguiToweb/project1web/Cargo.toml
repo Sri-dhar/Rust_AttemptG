@@ -1,0 +1,11 @@
+[package]
+name = "project1web"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = "0.18"
+egui = "0.18"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
