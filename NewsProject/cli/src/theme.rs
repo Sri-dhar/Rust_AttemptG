@@ -27,6 +27,12 @@ pub fn default() -> MadSkin {
         g: 255,
         b: 204, // Pale Yellow
     });
+    skin.paragraph.set_fg(Rgb {
+        //pale light brown
+        r: 204,
+        g: 0,
+        b: 102,
+    });
 
     skin
 }

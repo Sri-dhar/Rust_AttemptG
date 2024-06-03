@@ -9,6 +9,10 @@ fn render_articles(articles: &Vec<Article>) {
     theme.print_text("# Top headlines\n\n");
     for i in articles {
         theme.print_text(&format!("`{}`", i.title()));
+        if let Some(description) = i.description() {
+            print!("Description: ");
+            theme.print_text(&format!("{}\n\n", description));
+        }
         theme.print_text(&format!("> *{}*", i.url()));
         theme.print_text("---");
     }
