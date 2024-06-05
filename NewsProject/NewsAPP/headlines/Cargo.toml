@@ -1,0 +1,15 @@
+[package]
+name = "NewsAPP"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+eframe = { version = "0.18.0",  features = ["persistence"] }
+serde = { version = "1.0.137", features = ["derive"] }
+tracing = "0.1.35"
+tracing-subscriber = "0.3.11"
+newsapi = {path = "../newsapi"}
+lazy_static = "1.4.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]

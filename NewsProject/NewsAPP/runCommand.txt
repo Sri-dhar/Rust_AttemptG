@@ -1,0 +1,4 @@
+For Arch Linux users
+using Wayland Display Manager:
+
+WINIT_UNIX_BACKEND=x11 cargo run

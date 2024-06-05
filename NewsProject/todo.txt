@@ -1,0 +1,2 @@
+1.move heading up
+2.add magnify button
