@@ -1,0 +1,8 @@
+[package]
+name = "geminiCrate"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ask_gemini = "0.1.2"
+tokio = "1.38.0"
