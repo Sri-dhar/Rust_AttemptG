@@ -59,7 +59,7 @@ async fn main() -> Result<(), Error> {
     //read prompt prefix from file, what the model will actually do
     let prompt_prefix = fs::read_to_string("./prompt_context/context1.txt")?.trim().to_string();
 
-    let prompt_content = "How to check my ipv6 address using ipconfig".to_string();
+    let prompt_content = "how to see files that were created within 5minutes in my current directory".to_string();
     let prompt = format!("{}{}", prompt_prefix, prompt_content);
 
     match gemini.ask(prompt.as_str()).await {
