@@ -59,12 +59,12 @@ async fn main() -> Result<(), Error> {
     //read prompt prefix from file, what the model will actually do
     let prompt_prefix = fs::read_to_string("./prompt_context/context1.txt")?.trim().to_string();
 
-    let prompt_content = "how to see files that were created within 5minutes in my current directory".to_string();
+    let prompt_content = "how to see all the python environments in my pc using venv".to_string();
     let prompt = format!("{}{}", prompt_prefix, prompt_content);
 
     match gemini.ask(prompt.as_str()).await {
         Ok(response) => do_something(response),
-        Err(e) => eprintln!("Error: {}", e),
+        Err(e) => Ok((e)),
     }
 
     Ok(())
