@@ -1,13 +1,13 @@
+use ask_gemini::Gemini;
 use core::f32;
 use eframe::egui;
 use egui::{Key, ScrollArea, TopBottomPanel};
 use std::env;
+use std::fs;
+use std::io::{self, Error};
 use std::path::PathBuf;
 use std::process::Command;
-use std::fs;
-use ask_gemini::Gemini;
-use std::io::{self,Error};
-
+use std::sync::{mpsc, Arc, Mutex};
 
 pub struct CommandInstace {
     counter: i32,
@@ -24,8 +24,8 @@ pub struct MyApp {
     commands: Vec<CommandInstace>,
     text_area_id: Option<egui::Id>,
     request_focus_next_frame: bool,
-    gemini_response : String,
-    gemini_input : String,
+    gemini_response: String,
+    gemini_input: String,
 }
 
 impl Default for MyApp {
@@ -104,22 +104,43 @@ fn execute_command(command: &str, cwd: &mut PathBuf) -> io::Result<String> {
 //     Ok()
 // }
 
-fn process(input :Vec<String>) -> String{
+fn process(input: Vec<String>) -> String {
     let mut output = String::new();
-    for i in input{
+    for i in input {
         output.push_str(i.as_str());
     }
     output
 }
 
-async fn callGemini(prompt_content: String) -> Result<String, Error> {
+//set api key first
+// export GEMINI_API_KEY=your_api_key
+// dont use whitespaces
+async fn call_gemini(prompt_content: String) -> Result<String, Error> {
+    let api_key = match env::var("GEMINI_API_KEY") {
+        Ok(key) => key,
+        Err(e) => {
+            eprintln!("Error: GEMINI_API_KEY not set - {}", e);
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                "GEMINI_API_KEY not set",
+            ));
+        }
+    };
+
+    // println!("API Key: {}", api_key);
+
     let gemini = Gemini::new(None, None);
-    let prompt_prefix = fs::read_to_string("./../prompt_context/context1.txt")?.trim().to_string();
+    let prompt_prefix = fs::read_to_string("/home/solomons/Rust_AttemptG/folder_geminiInRust/gui-terminal/prompt_context/context1.txt")?
+        .trim()
+        .to_string();
     let prompt = format!("{}{}", prompt_prefix, prompt_content);
 
     match gemini.ask(prompt.as_str()).await {
         Ok(response) => Ok(process(response)),
-        Err(_e) => Err(io::Error::new(io::ErrorKind::InvalidData, "Response could not be fetched")),
+        Err(_e) => Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "Response could not be fetched",
+        )),
     }
 }
 
@@ -127,7 +148,7 @@ impl MyApp {
     fn custom_command_handling(&mut self, command: String) -> bool {
         let args: Vec<&str> = command.split_whitespace().collect();
         let (cmd, _rest) = args.split_at(1);
-        let cmd = cmd[0];    // status: String,
+        let cmd = cmd[0]; // status: String,
 
         let _rest = _rest.join(" ");
 
@@ -237,7 +258,38 @@ impl eframe::App for MyApp {
                     }
 
                     if b2.clicked() {
-                        // callGemini(self.command_input.clone());
+                        self.gemini_input = self.command_input.clone();
+                        let gemini_input = self.gemini_input.clone();   
+                        let ctx = ctx.clone();
+                        let (tx, rx) = mpsc::channel::<String>(); 
+
+                        tokio::spawn(async move {
+                            match call_gemini(gemini_input).await {
+                                Ok(response) => {
+                                    // Update the application state with the response
+                                    // If you need to update any state in `self`, consider adding a channel to pass the result back
+                                    // println!("Gemini Response: {}", response);
+                                    match tx.send(response) {
+                                        Ok(_) => println!("Data sent successfully"),
+                                        Err(e) => eprintln!("Failed to send data: {}", e),
+                                    }
+                                    ctx.request_repaint();
+                                }
+                                Err(e) => {
+                                    eprintln!("Error: {}", e);
+                                }
+                            }
+                        });
+
+                        match rx.recv() {
+                            Ok(response) => {
+                                self.gemini_response = response;
+                                self.command_input = self.gemini_response.clone();
+                            }
+                            Err(e) => {
+                                eprintln!("Error: {}", e);
+                            }
+                        }
                     }
 
                     if ctx.input(|i| i.key_pressed(Key::Enter)) {

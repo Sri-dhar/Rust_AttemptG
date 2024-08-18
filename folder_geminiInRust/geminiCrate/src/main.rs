@@ -1,8 +1,7 @@
 use ask_gemini::Gemini;
 use std::fs;
 use std::process::{Command, Stdio};
-use std::io;
-use std::io::{BufRead, BufReader, Error};
+use std::io::{self, BufRead, BufReader};
 
 fn run_command(command_string: &str) -> io::Result<()> {
     let mut child = Command::new("sh")
@@ -27,11 +26,8 @@ fn run_command(command_string: &str) -> io::Result<()> {
     Ok(())
 }
 
-
-fn do_something(response: Vec<String>) {
-
-//  need to do "export GEMINI_API_KEY=your_api_key" before running the code
-    let mut stt : String = String::new();
+fn do_something(response: Vec<String>) -> Result<(), io::Error> {
+    let mut stt: String = String::new();
     print!("Command: ");
     for st in response {
         let st = st.replace("```", "");
@@ -39,32 +35,29 @@ fn do_something(response: Vec<String>) {
         stt.push_str(st.as_str());
     }
     println!();
-    //executing the command in string st
-    // let output = Command::new("sh")
-    //     .arg("-c")
-    //     .arg(stt)
-    //     .output()
-    //     .expect("failed to execute process");
-    // println!("status: {}", output.status);
-    if let Err(e) = run_command(stt.as_str()) {
+    
+    if let Err(e) = run_command(&stt) {
         eprintln!("Error executing command: {}", e);
+        return Err(e);
     }
+
+    Ok(())
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Error> {
-    //init model
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize model
     let gemini = Gemini::new(None, None);
 
-    //read prompt prefix from file, what the model will actually do
+    // Read prompt prefix from file
     let prompt_prefix = fs::read_to_string("./prompt_context/context1.txt")?.trim().to_string();
 
     let prompt_content = "how to see all the python environments in my pc using venv".to_string();
     let prompt = format!("{}{}", prompt_prefix, prompt_content);
 
-    match gemini.ask(prompt.as_str()).await {
-        Ok(response) => do_something(response),
-        Err(e) => Ok((e)),
+    match gemini.ask(&prompt).await {
+        Ok(response) => do_something(response)?,
+        Err(e) => eprintln!("Error asking Gemini: {}", e),
     }
 
     Ok(())
